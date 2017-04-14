@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -39,6 +38,7 @@ import jaist.echonet.EchonetNode;
 import jaist.echonet.EchonetProperty;
 import jaist.echonet.EchonetProtocol;
 import jaist.echonet.LocalEchonetObject;
+import jaist.echonet.Logging;
 import jaist.echonet.RemoteEchonetObject;
 import jaist.echonet.ServiceCode;
 import jaist.echonet.wrappers.AbstractObjectWrapper;
@@ -51,6 +51,7 @@ import jaist.echonet.config.DeviceInfo;
 import jaist.echonet.config.TemperatureSensorInfo;
 import jaist.echonet.config.EmergencyButtonInfo;
 import jaist.echonet.util.Utils;
+import java.util.logging.ConsoleHandler;
 
 /**
  *
@@ -109,13 +110,19 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
      */
     public static void main(String[] args) {
 
+        Logging.setLoggingLevel(Level.FINEST);
+        ConsoleHandler console = new ConsoleHandler();
+        console.setLevel(Level.FINEST);
+        Logging.getLogger().addHandler(console);
+        
+        
         InetAddress address = null;
         try {
             if (args.length > 0) {
                 address = InetAddress.getByName(args[0]);
             }
         } catch (UnknownHostException ex) {
-            Logger.getLogger(NetworkScanner.class.getName()).log(Level.SEVERE, null, ex);
+            Logging.getLogger().log(Level.SEVERE, null, ex);
         }
 
 
@@ -246,7 +253,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
         RemoteEchonetObject rnode = echonode.getRemoteObject(nodeaddress, EchonetProtocol.NODEPROFILEOJ);
         EchonetQuery responses = echonode.makeQuery(controler, rnode, ServiceCode.Get, Collections.singletonList((EchonetProperty) new EchonetDummyProperty((byte) 0xD6)), null, null);
         EchonetAnswer nextAnswer;
-        System.out.println("xxx query ip: " + rnode.getQueryIp());
+        Logging.getLogger().log(Level.INFO, "xxx query ip: {0}", rnode.getQueryIp());
         while ((nextAnswer = responses.getNextAnswer()) != null) {
 
             //first add the model of the remote node to the data model
@@ -411,7 +418,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             //...also, ignore the notification, we'll get a more recent value 
             //during scan.
             scanNode(robject.getQueryIp());
-            System.out.println("does not exist");
         } else {
             //just process the notification
             //1. bring up the proper table model.
@@ -430,7 +436,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
     @Override
     public void valueChanged(TreeSelectionEvent tse) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tse.getPath().getLastPathComponent();
-        System.out.println(node.getUserObject().toString());
+        Logging.getLogger().log(Level.FINE, node.getUserObject().toString());
         if (node.isLeaf() && node.getUserObject() instanceof ToStringObjectWrapper) {
             ToStringObjectWrapper wrapped = (ToStringObjectWrapper) node.getUserObject();
             //set the current echonet object
@@ -438,7 +444,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
 
             JPanel currentcard = cardholder.getPanelComponent(wrapped.getObject());
             CardLayout cl = (CardLayout) cards.getLayout();
-            System.out.println("show key: " + wrapped.getObject().toString());
+            //System.out.println("show key: " + wrapped.getObject().toString());
 
             cards.add(currentcard, wrapped.getObject().toString());
             cl.show(cards, wrapped.getObject().toString());
@@ -457,9 +463,9 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             if (data != null && data.length > 0) {
                 DevicePropertiesTableModel dataModel = cardholder.getDataModel(currentobject);
                 dataModel.addTableProperties(Collections.singletonList(new TableProperty(currentopcode, 1, data)));
-                System.out.println("Refresh data: " + Utils.toHexString(data));
+                Logging.getLogger().log(Level.INFO, "Refresh data: {0}", Utils.toHexString(data));
             } else {
-                System.out.println("The query died");
+                Logging.getLogger().log(Level.WARNING,"The query died");
             }
         }
     }
@@ -471,7 +477,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
                     controler);
             boolean error = wrapped.writeProperty((byte) currentopcode, data);
             if (error) {
-                System.out.println("Unable to write property");
+                Logging.getLogger().log(Level.WARNING, "Unable to write property");
                 return true;
             } else {
                 DevicePropertiesTableModel dataModel = cardholder.getDataModel(currentobject);
@@ -493,7 +499,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
                     JTree tree = (JTree) comp;
 
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                    System.out.println(node.getUserObject().toString());
+                    Logging.getLogger().log(Level.FINEST, node.getUserObject().toString());
                     if (node.isLeaf() && node.getUserObject() instanceof ToStringObjectWrapper) {
                         final ToStringObjectWrapper wrapped = (ToStringObjectWrapper) node.getUserObject();
 

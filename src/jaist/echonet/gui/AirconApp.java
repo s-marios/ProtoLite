@@ -70,7 +70,7 @@ public class AirconApp implements SupportsAppend{
         frame.setVisible(true);
        }
     
-    /**
+    /** 
      * The main method for the virtual air condition program. 
      * 
      * @param args A single argument (if supplied) is an IP address that will be

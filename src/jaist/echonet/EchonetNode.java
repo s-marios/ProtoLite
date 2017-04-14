@@ -37,7 +37,7 @@ public class EchonetNode {
     private RemoteEchonetObjectManager remotemanager;
 
     /**
-     * Gets the associaded with this node <code>NodeProfileObject</code>. There
+     * Gets the associated with this node <code>NodeProfileObject</code>. There
      * is no need to access this object unless you know what you're doing
      * 
      * @return the {@link NodeProfileObject}
@@ -191,7 +191,7 @@ public class EchonetNode {
                 InetAddress remote = network.recvEchonetPayload(this.pparse);
                 if (pparse.getErrno() != EchonetPayloadParser.errorcode.SUCCESS) {
                     // TODO do some logging Logger.getLogger(EchonetNode.class.getName()).log(Level.SEVERE, null);
-                    System.out.println("Dropped packet. Reason: " + pparse.getErrno());
+                    Logging.getLogger().log(Level.INFO, "Dropped packet. Reason: {0}", pparse.getErrno());
                     continue;
                 }
 
@@ -401,7 +401,7 @@ public class EchonetNode {
     private void writeResponseToNetwork(InetAddress destination, byte[] payload) {
         try {
             network.sendData(destination, payload);
-            System.out.println("Sent response to a write.");
+            Logging.getLogger().log(Level.FINEST, "Sent response to a write.");
         } catch (IOException ex) {
             Logger.getLogger(EchonetNode.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -445,7 +445,7 @@ public class EchonetNode {
      */
     public EchonetQuery makeQuery(AbstractEchonetObject sender, AbstractEchonetObject target, ServiceCode service,
             List<EchonetProperty> properties, List<EchonetProperty> secondary, EchoEventListener listener) {
-        System.out.println("xxx makeQuery target1: " + target.getQueryIp());
+        Logging.getLogger().log(Level.FINE, "xxx makeQuery target1: {0}", target.getQueryIp());
         EchonetQuery query = new EchonetQuery(service, sender, listener);
         synchronized (pcreate) {
             this.craftEchonetQuery(service, sender, target);
@@ -472,7 +472,7 @@ public class EchonetNode {
                 writeOperandsNull(secondary);
             }
             openqueries.put((int) pcreate.getCurrentTID(), query);
-            System.out.println("xxx makeQuery target2: " + target.getQueryIp());
+            Logging.getLogger().log(Level.FINE, "xxx makeQuery target2: {0}", target.getQueryIp());
             sendQuery(target.getQueryIp());
         }
         return query;
@@ -540,7 +540,7 @@ public class EchonetNode {
 
     private boolean handleIncomingNotifications(InetAddress remote) {
         //handle incoming random notifications
-        System.out.println("Received notification!!!");
+        Logging.getLogger().log(Level.FINE, "Received notification!!!");
         RemoteEchonetObject robject = getRemoteObject(remote, pparse.getSEOJ());
         //preprocess the list. if a property has zero length prune it.
         for (EchonetProperty property : pparse.getPropertyList()) {
@@ -573,10 +573,10 @@ public class EchonetNode {
             synchronized (this.presponse) {
                 this.craftEchonetResponse(this.presponse, ok, obj.getEOJ());
                 for (EchonetProperty property : pparse.getPropertyList()) {
-                    System.out.println("xxx EPC: " + String.format("0x%2x", 0x000000ff & (int) property.getPropertyCode()));
+                    Logging.getLogger().log(Level.FINE, "xxx EPC: {0}", String.format("0x%2x", 0x000000ff & (int) property.getPropertyCode()));
                     byte[] data = obj.readProperty(property.getPropertyCode());
                     if (data != null) {
-                        System.out.println("xxx size: " + data.length);
+                        Logging.getLogger().log(Level.FINE, "xxx size: {0}", data.length);
                     }
                     presponse.writeOperand(property.getPropertyCode(), data);
                     if (data == null || data.length == 0) {
@@ -586,10 +586,10 @@ public class EchonetNode {
                 }
                 //write packet.
                 if (multicast) {
-                    System.out.println("xxx multicast: " + network.getGroupIP());
+                    Logging.getLogger().log(Level.FINE, "xxx multicast: {0}", network.getGroupIP());
                     this.writeResponseToNetwork(network.getGroupIP(), presponse.getPayload());
                 } else {
-                    System.out.println("xxx unicast: " + remote.getHostAddress());
+                    Logging.getLogger().log(Level.FINE, "xxx unicast: {0}", remote.getHostAddress());
                     this.writeResponseToNetwork(remote, presponse.getPayload());
                 }
             }//synchronized

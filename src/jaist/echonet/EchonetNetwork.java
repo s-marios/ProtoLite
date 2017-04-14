@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
@@ -27,7 +26,7 @@ class EchonetNetwork {
     }
 
     public InetAddress getGroupIP() {
-        System.out.println("xxx Group: " + this.group);
+        Logging.getLogger().log(Level.FINE, "xxx Group: {0}", this.group);
         return this.group;
     }
 
@@ -57,7 +56,7 @@ class EchonetNetwork {
             }
             if (local.getAddress().length == 16) {
                 group = InetAddress.getByName(EchonetProtocol.ECHONETMULTICASTV6);
-                System.out.println("Using IPv6");
+                Logging.getLogger().log(Level.FINE, "Using IPv6");
             }
 
             //TODO it is possible to bind to specific interface by using InetSocektAddress as an arg to multicast socket.
@@ -79,7 +78,7 @@ class EchonetNetwork {
             msocket.setSoTimeout(100);
             msocket.setLoopbackMode(false);
         } catch (IOException iOException) {
-            Logger.getLogger(EchonetNode.class.getName()).log(Level.SEVERE, "Failed to set up the socket properly", iOException);
+            Logging.getLogger().log(Level.SEVERE, "Failed to set up the socket properly", iOException);
             System.exit(1);
         }
     }
@@ -99,8 +98,8 @@ class EchonetNetwork {
     public InetAddress recvEchonetPayload(EchonetPayloadParser payload) throws IOException {
         DatagramPacket drecv = new DatagramPacket(receivebuffer, receivebuffer.length);
         msocket.receive(drecv);
-        System.out.println("Packet from: " + drecv.getAddress().getHostAddress());
-        System.out.printf("Received packet lenght: %d %d\n", drecv.getLength(), drecv.getOffset());
+        Logging.getLogger().log(Level.FINE, "Packet from: {0}", drecv.getAddress().getHostAddress());
+        Logging.getLogger().log(Level.FINE, String.format("Received packet lenght: %d %d\n", drecv.getLength(), drecv.getOffset()));
         payload.setPayload(drecv.getData(), drecv.getLength());
         return drecv.getAddress();
     }
