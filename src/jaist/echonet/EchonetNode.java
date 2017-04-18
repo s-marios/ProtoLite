@@ -632,16 +632,16 @@ public class EchonetNode {
      * of interest is received. The notifications for which the listener will be
      * executed is decided by the parameters passed.
      * 
-     * semantics: if any parameter is null/zero then it is considered as "any" 
+     * semantics: if any parameter is null then it is considered as "any" 
      * match. 
      * 
      * @param ip the IP address of a remote object (may be a unicast address,
-     * may be a subnet address, or zero for "any" address)
-     * @param classGroupCode the group code of objects of interest
-     * @param classCode the class code of interest
-     * @param instanceCode the instance code of interest
-     * @param property the property code of interest
-     * @param listener the listener to be executed when a notification event 
+     * may be a subnet address, or null for "any" address)
+     * @param classGroupCode the group code of objects of interest (may be null)
+     * @param classCode the class code of interest (may be null)
+     * @param instanceCode the instance code of interest (may be null)
+     * @param property the property code of interest (may be null)
+     * @param listener the listener to be executed when a notification event  
      * that matches the criteria specified above is received
      */
     public void registerForNotifications(InetAddress ip,

@@ -39,7 +39,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
     }
 
     /**
-     * Reads the specifed property of the remote object and returns its data.
+     * Reads the specified property of the remote object and returns its data.
      * This action will result into an echonet query being sent over the network,
      * and its results will be returned. The originating EOJ will be that of the
      * local node profile object.
