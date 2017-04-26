@@ -11,9 +11,9 @@ public abstract class EchonetProperty {
     public static final int UPTO = 1;
     public static final int EXACT = 0;
     private byte propcode;
-    private boolean readable;
-    private boolean writable;
-    private boolean notifies;
+    protected boolean readable;
+    protected boolean writable;
+    protected boolean notifies;
     protected int capacitypolicy = EXACT;
     protected int capacity = 0;
 
@@ -39,14 +39,14 @@ public abstract class EchonetProperty {
     /**
      * Constructor. 
      * 
-     * Use the non-deprecated ones, they check for capacity.
+     * Use this constructor for properties whose capacity is unknown or cannot
+     * be known ahead of time.
      * 
      * @param propcode
      * @param isreadable
      * @param iswriteable
      * @param notifies 
      */
-    @Deprecated
     public EchonetProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies) {
         this.propcode = propcode;
         this.readable = isreadable;
@@ -91,7 +91,7 @@ public abstract class EchonetProperty {
 
     /**
      * Returns if this property notifies when its value changes
-     * @return ture if it notifies, false otherwise
+     * @return true if it notifies, false otherwise
      */
     public boolean doesNotify() {
         return notifies;

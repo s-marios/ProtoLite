@@ -1,7 +1,10 @@
 package jaist.echonet;
 
+import jaist.echonet.wrappers.AbstractObjectWrapper;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Representation of a remote echonet object. 
@@ -58,6 +61,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
      * to be read. Usually an EchonetDummyProperty
      * @return the contents of this property (may be null)
      */
+    @Override
     public byte[] readProperty(AbstractEchonetObject whoasks, EchonetProperty property) {
         EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.Get, Collections.singletonList(property), null, null);
 
@@ -105,5 +109,60 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
             return true;
         }
         return false;
+    }
+    
+    public boolean updatePropertyList(){
+        byte[] announcemap = this.readProperty((byte) 0x9D);
+        byte[] writemap = this.readProperty((byte) 0x9E);
+        byte[] readmap = this.readProperty((byte) 0x9F);
+        byte[] announcecodes = AbstractObjectWrapper.propertyMap(announcemap);
+        byte[] writecodes = AbstractObjectWrapper.propertyMap(writemap);
+        byte[] readcodes = AbstractObjectWrapper.propertyMap(readmap);
+        
+        ArrayList<EchonetRemoteProperty> properties = new ArrayList<>();
+        //start from the read map
+        if (readcodes == null){
+            return false; 
+        }
+        for (Byte propcode : readcodes){
+            properties.add(new EchonetRemoteProperty(this, propcode, true, false, false));
+        }
+        
+        //write properties
+        if (writecodes == null){
+            return false;
+        }
+        for (Byte propcode : writecodes){
+            EchonetRemoteProperty property = getOrCreateProperty(propcode, properties);
+            property.setWritable(true);
+        }
+        
+        //finally, notify properties;
+        if (announcecodes == null){
+            return false;
+        }
+        for (Byte propcode : announcecodes){
+            EchonetRemoteProperty property = getOrCreateProperty(propcode, properties);
+            property.setNotifies(true);
+        }
+        
+        //add the properties to the remote object
+        for (EchonetRemoteProperty property : properties){
+            this.properties.replace(property.getPropertyCode(), property);
+        }
+        
+        return true;
+    }
+    
+    private EchonetRemoteProperty getOrCreateProperty(Byte propertyCode, List<EchonetRemoteProperty> properties){
+        for (EchonetRemoteProperty property : properties){
+            if (property.getPropertyCode() == propertyCode){
+                return property;
+            }
+        }
+        //no  property found, create a new one
+        EchonetRemoteProperty result = new EchonetRemoteProperty(this, propertyCode, false, false, false);
+        properties.add(result);
+        return result;
     }
 }

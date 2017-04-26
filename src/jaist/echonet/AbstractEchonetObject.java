@@ -23,7 +23,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
     /**
      * The list of properties of this object
      */
-    protected Map<Byte, EchonetProperty> properties = new ConcurrentHashMap();
+    protected Map<Byte, EchonetProperty> properties = new ConcurrentHashMap<>();
     /**
      * The ip address of this object. Not really useful, get the ip address by 
      * accessing the context
