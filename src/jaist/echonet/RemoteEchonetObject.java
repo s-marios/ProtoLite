@@ -36,6 +36,19 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
     }
 
     /**
+     * Reads the specifed property of the remote object and returns its data.
+     * This action will result into an echonet query being sent over the network,
+     * and its results will be returned. The originating EOJ will be that of the
+     * local node profile object.
+     * @param property the property code to be read (as byte)
+     * @return the contents of this property (may be null)
+     */
+    @Override
+    public byte[] readProperty(byte property){
+        return readProperty(this.getEchonetNode().getNodeProfileObject().getEchonetObject(), property);
+    }
+
+    /**
      * "Reads" the specified property of the remote object and returns its data.
      * This action will result into an echonet query being sent over the network,
      * and its results will be returned      * 
