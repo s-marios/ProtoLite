@@ -76,21 +76,26 @@ public class RemoteObjectSample {
 
         //Initial remote object list probing.
         System.out.println("Update remote object list");
+        //Important to call updatePropertyList to discover the properties of 
+        //the remote object.
         if (robject.updatePropertyList() == false) {
             System.out.println("Updating the list of properties for the remote object failed.");
             System.exit(1);
         }
 
         for (EchonetProperty property : robject.getPropertyList()) {
-            System.out.println("Property: " + Utils.toHexString(property.getPropertyCode())
-                    + property.isReadable()
-                    + property.isWriteable()
-                    + property.doesNotify()
-            );
+            StringBuffer stringbuf = new StringBuffer("Property: ");
+            stringbuf.append(Utils.toHexString(property.getPropertyCode()));
+            stringbuf.append(" ");
+            stringbuf.append(property.isReadable()? "R" : "-");
+            stringbuf.append(property.isWriteable()? "W" : "-");
+            stringbuf.append(property.doesNotify()? "N":"-");
+            stringbuf.append("\n");
+            System.out.print(stringbuf);
         }
 
         for (EchonetProperty property : robject.getPropertyList()) {
-            System.out.println("Property (data): " + property.getPropertyCode()
+            System.out.println("Property (data): " + Utils.toHexString(property.getPropertyCode())
                     + "  "
                     + Utils.toHexString(property.read())
             );
@@ -105,10 +110,7 @@ public class RemoteObjectSample {
                 byte[] data = robject.readProperty(propcode);
                 System.out.println("propcode: " + Utils.toHexString(propcode) + " data: " + Utils.toHexString(data));
             }
-
-//            for (EchonetProperty prop : robject.getPropertyList()) {
-//                System.out.println("propcode: " + Utils.toHexString(prop.getPropertyCode()));
-//            }
+            
             Thread.currentThread().sleep(3000);
         }
 

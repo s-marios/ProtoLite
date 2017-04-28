@@ -148,7 +148,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         
         //add the properties to the remote object
         for (EchonetRemoteProperty property : properties){
-            this.properties.replace(property.getPropertyCode(), property);
+            this.properties.put(property.getPropertyCode(), property);
         }
         
         return true;
