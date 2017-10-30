@@ -1,4 +1,3 @@
-
 package jaist.echonet;
 
 import java.util.ArrayList;
@@ -10,20 +9,23 @@ import jaist.echonet.config.PropertyInfo;
 
 /**
  * A generator to get unused instance numbers associated to class codes
+ *
  * @author ymakino
  */
 class UnusedEOJGenerator {
+
     private HashMap<EOJ, Byte> usedEOJMap;
+
     public UnusedEOJGenerator() {
         usedEOJMap = new HashMap<EOJ, Byte>();
     }
-    
+
     public EOJ generate(EOJ eoj) {
         byte unused = 1;
         EOJ ceoj = eoj.getClassEOJ();
         Byte b = usedEOJMap.get(ceoj);
         if (b != null) {
-            unused = (byte)(b + 1);
+            unused = (byte) (b + 1);
         }
         usedEOJMap.put(ceoj, unused);
         return ceoj.getEOJWithInstanceCode(unused);
@@ -32,87 +34,94 @@ class UnusedEOJGenerator {
 
 /**
  * Representation of a local echonet object.
- * 
+ *
  * @author Sioutis Marios
  */
-public class LocalEchonetObject extends AbstractEchonetObject{
+public class LocalEchonetObject extends AbstractEchonetObject {
+
     private DeviceInfo deviceInfo;
     private static UnusedEOJGenerator generator = new UnusedEOJGenerator();
-    
+
     /**
      * Constructor
-     * 
-     * @param deviceInfo the configuration to initialize this object with. The 
-     * properties in this parameter will be translated to {@link EchonetCharacterProperty}
-     * objects
+     *
+     * @param deviceInfo the configuration to initialize this object with. The
+     * properties in this parameter will be translated to
+     * {@link EchonetCharacterProperty} objects
      */
-    public LocalEchonetObject(DeviceInfo deviceInfo){
+    public LocalEchonetObject(DeviceInfo deviceInfo) {
         super(generator.generate(deviceInfo.getClassEOJ()));
         this.deviceInfo = deviceInfo;
-        
+
         int size = deviceInfo.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             PropertyInfo info = deviceInfo.getAtIndex(i);
             addProperty(new EchonetCharacterProperty(info.epc, info.readable, info.writable, info.notifies, info.size, info.capacitypolicy, info.data));
         }
         updatePropertyMap();
     }
-    
+
     /**
      * Constructor without configuration, just raw properties as a collection.
      * Added to handle the requirements of the middleware adapter.
+     *
      * @param eoj
      * @param properties A collection of the object properties initialized
      */
-    public LocalEchonetObject(EOJ eoj, Collection<? extends EchonetProperty> properties){
+    public LocalEchonetObject(EOJ eoj, Collection<? extends EchonetProperty> properties) {
         super(eoj);
-        for (EchonetProperty property : properties){
+        for (EchonetProperty property : properties) {
             addProperty(property);
         }
         updatePropertyMap();
     }
-    
-    
-    /** 
-     * Constructor with base configuration and extra properties. 
-     * This is useful for quickly adding the device super-class properties and 
-     * EOJ using the deviceInfo object, and furthermore customizing behavior 
-     * with the properties collection. If a property is both on the deviceInfo
-     * and properties collection, the latter takes effect.
-     * 
-     * @param deviceInfo see the documentation for the constructor with only 
+
+    /**
+     * Constructor with base configuration and extra properties. This is useful
+     * for quickly adding the device super-class properties and EOJ using the
+     * deviceInfo object, and furthermore customizing behavior with the
+     * properties collection. If a property is both on the deviceInfo and
+     * properties collection, the latter takes effect.
+     *
+     * @param deviceInfo see the documentation for the constructor with only
      * deviceInfo argument
-     * @param properties A collection of EchonetProperty properties that 
+     * @param properties A collection of EchonetProperty properties that
      * implement the behavior of this object.
      */
-    public LocalEchonetObject(DeviceInfo deviceInfo, Collection<? extends EchonetProperty> properties){
+    public LocalEchonetObject(DeviceInfo deviceInfo, Collection<? extends EchonetProperty> properties) {
         super(generator.generate(deviceInfo.getClassEOJ()));
         this.deviceInfo = deviceInfo;
-        
+
         int size = deviceInfo.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             PropertyInfo info = deviceInfo.getAtIndex(i);
             addProperty(new EchonetCharacterProperty(info.epc, info.readable, info.writable, info.notifies, info.size, info.capacitypolicy, info.data));
         }
-        for (EchonetProperty property : properties){
+        for (EchonetProperty property : properties) {
             addProperty(property);
         }
         updatePropertyMap();
     }
-    
-    
+
     /**
      * Computes the property maps for this object (properties 0x9d, 0x9e, 0x9f).
      * Should be called whenever a new property is added. This method will be
-     * called once as the last part of the initialization of a local echonet 
-     * object. If more properties are added after that, this method must also
-     * be called.
+     * called once as the last part of the initialization of a local echonet
+     * object. If more properties are added after that, this method must also be
+     * called.
      */
-    public final void updatePropertyMap(){
+    public final void updatePropertyMap() {
         Collection<EchonetProperty> props = getPropertyList();
         List<EchonetProperty> readable = new ArrayList<EchonetProperty>();
         List<EchonetProperty> writeable = new ArrayList<EchonetProperty>();
         List<EchonetProperty> notifies = new ArrayList<EchonetProperty>();
+
+        //Add 9d 9e 9f as dummies so that they are counted when we generate the
+        //property maps
+        addProperty(new EchonetCharacterProperty((byte) 0x9d, true, false, false, compilePropertyMap(notifies)));
+        addProperty(new EchonetCharacterProperty((byte) 0x9e, true, false, false, compilePropertyMap(writeable)));
+        addProperty(new EchonetCharacterProperty((byte) 0x9f, true, false, false, compilePropertyMap(readable)));
+
         for (EchonetProperty prop : props) {
             if (prop.isReadable()) {
                 readable.add(prop);
@@ -123,12 +132,14 @@ public class LocalEchonetObject extends AbstractEchonetObject{
             if (prop.doesNotify()) {
                 notifies.add(prop);
             }
-            addProperty(new EchonetCharacterProperty((byte) 0x9d, false, false, compilePropertyMap(notifies)));
-            addProperty(new EchonetCharacterProperty((byte) 0x9e, false, false, compilePropertyMap(writeable)));
-            addProperty(new EchonetCharacterProperty((byte) 0x9f, false, false, compilePropertyMap(readable)));
         }
+
+        //replace the dummies with the real ones that have proper maps.
+        addProperty(new EchonetCharacterProperty((byte) 0x9d, true, false, false, compilePropertyMap(notifies)));
+        addProperty(new EchonetCharacterProperty((byte) 0x9e, true, false, false, compilePropertyMap(writeable)));
+        addProperty(new EchonetCharacterProperty((byte) 0x9f, true, false, false, compilePropertyMap(readable)));
     }
-    
+
     protected byte[] compilePropertyMap(List<EchonetProperty> properties) {
         byte[] map = new byte[properties.size() < 17 ? properties.size() + 1 : 17];
         map[0] = (byte) properties.size();
@@ -157,59 +168,60 @@ public class LocalEchonetObject extends AbstractEchonetObject{
         }
         return map;
     }
-    
+
     /**
      * Gets the associated device information used during initialization.
-     * 
+     *
      * @return associated device info
      */
     public DeviceInfo getDeviceInfo() {
         return deviceInfo;
     }
-    
+
     /**
-     * Writes the property with the given property code using the given data, 
+     * Writes the property with the given property code using the given data,
      * without consulting the write permissions. The write permissions represent
-     * how the object is viewed from the "outside" world (i.e. other objects). 
+     * how the object is viewed from the "outside" world (i.e. other objects).
      * However, there's a need to change the data of the local object from the
      * device behaviour defining threads, so this privileged write operation is
      * necessary
-     * 
+     *
      * @param propertycode the property to write
      * @param data the data to write
      * @return true in case of error, false otherwise
      */
-    public boolean adminWriteProperty(byte propertycode, byte[] data){
+    public boolean adminWriteProperty(byte propertycode, byte[] data) {
         EchonetProperty property = properties.get(propertycode);
-        if (property == null) return true;
-        
+        if (property == null) {
+            return true;
+        }
+
         boolean error = property.write(data);
-        if(!error && property.doesNotify()){
+        if (!error && property.doesNotify()) {
             this.inform(property);
         }
         return error;
     }
-    
+
     /**
-     * Makes a read attempt for a property 
-     * 
+     * Makes a read attempt for a property
+     *
      * @param whoasks effectively ignored for local objects
-     * @param copyfrom a property (usually a dummy one) that has the same 
+     * @param copyfrom a property (usually a dummy one) that has the same
      * property code as the property that will be read
      * @return the data read
      */
     @Override
-    public byte[] readProperty(AbstractEchonetObject whoasks, EchonetProperty copyfrom){
+    public byte[] readProperty(AbstractEchonetObject whoasks, EchonetProperty copyfrom) {
         return readProperty(copyfrom.getPropertyCode());
     }
-
 
     //the next two functions are used by the echonode receiving thread. 
     //No one else should touch these!
     //TODO is this needed as public?
     /**
      * Unprivileged write operation. Respects the access rights of the property.
-     * 
+     *
      * @param whoasks ignored
      * @param property the code of the property to write
      * @param data the data to write as a byte array
@@ -221,7 +233,7 @@ public class LocalEchonetObject extends AbstractEchonetObject{
 
     /**
      * Unprivileged write operation. Respects the access rights of the property.
-     * 
+     *
      * @param whoasks ignored
      * @param copyfrom property to copy data and opcode from
      * @return true if an error occurred, false otherwise
@@ -233,7 +245,7 @@ public class LocalEchonetObject extends AbstractEchonetObject{
 
     /**
      * Read operation. Gets the data that this property holds
-     * 
+     *
      * @param whoasks ignored
      * @param property the property code of the property to be read
      * @return a byte array containing the data, may be null
