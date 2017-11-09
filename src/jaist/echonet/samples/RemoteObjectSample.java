@@ -34,7 +34,7 @@ public class RemoteObjectSample {
     public RemoteObjectSample(String[] args) {
 
         if (args.length < 4) {
-            System.out.println("Uasege: REMOTEIPADDRESS EOJ PROPCODE [PROPCODE ...] ");
+            System.out.println("Usage: REMOTEIPADDRESS EOJ PROPCODE [PROPCODE ...] ");
             System.exit(0);
         }
 
