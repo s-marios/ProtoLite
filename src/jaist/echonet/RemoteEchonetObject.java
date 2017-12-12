@@ -14,6 +14,29 @@ import java.util.List;
 public class RemoteEchonetObject extends AbstractEchonetObject {
 
     /**
+     * @return the service code used with writeProperty
+     */
+    public WriteMode getWriteMode() {
+        return writemode;
+    }
+
+    /**
+     * Set the service code to be used when using writeProperty (SetC/SetI). 
+     * 
+     * @param setmode the service code to use with writeProperty
+     */
+    public void setWriteMode(WriteMode setmode) {
+        this.writemode = setmode;
+    }
+    
+    public enum WriteMode {
+        SetC,
+        SetI
+    }
+
+    private WriteMode writemode;
+    
+    /**
      * This constructor is not public. To get a reference to a remote echonet 
      * object use {@link EchonetNode#getRemoteObject(java.net.InetAddress, multiunicast.EOJ) }
      * @param addr the IP address of the remote node (may be multicast address)
@@ -22,6 +45,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
     RemoteEchonetObject(InetAddress addr, EOJ eoj) {
         super(eoj);
         this.queryip = addr;
+        writemode = WriteMode.SetC;
     }
 
     /**
@@ -96,6 +120,11 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
      */
     @Override
     public boolean writeProperty(AbstractEchonetObject whoasks, EchonetProperty copyfrom) {
+        if (this.writemode == WriteMode.SetI){
+            EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.SetI, Collections.singletonList(copyfrom), null, null);
+            return false;
+        }
+        
         EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.SetC, Collections.singletonList(copyfrom), null, null);
         EchonetAnswer answer = query.getNextAnswer();
 
