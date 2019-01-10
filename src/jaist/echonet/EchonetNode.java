@@ -650,4 +650,16 @@ public class EchonetNode {
 
         this.nmanager.register(ip, classGroupCode, classCode, instanceCode, property, listener);
     }
+    
+    /**
+     * Get a RemoteNodeDiscovery instance for performing network object discovery.
+     * User the methods provided by @RemoteNodeDiscovery to discover all the
+     * objects present in the network. Will take time since it serializes requests.
+     * 
+     * @return a new instance of RemoteNodeDiscovery
+     * @see NodeDiscovery
+     */
+    public NodeDiscovery getNodeDiscovery(){
+        return new NodeDiscovery(this);
+    }
 }

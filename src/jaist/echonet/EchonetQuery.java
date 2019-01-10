@@ -113,9 +113,9 @@ public class EchonetQuery extends ArrayList<EchonetAnswer> implements Query{
     /**
      * A BLOCKING method that may return <ul>
      * <li> the next answer associated with this query</li>
-     * <li> null if there are no more answers and the query has expired</>
+     * <li> null if there are no more answers and the query has expired</li>
      * </ul>
-     * @return a {@link EchonetAnswer object} or null
+     * @return an {@link EchonetAnswer EchonetAnswer object} or null
      */
     public synchronized EchonetAnswer getNextAnswer(){
         waitForAnAnswer();
