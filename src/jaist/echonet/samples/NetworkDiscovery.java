@@ -57,7 +57,7 @@ public class NetworkDiscovery {
         System.out.println(sdf.format(date) + "Starting discovery...");
         
         //perform discovery.
-        for (RemoteEchonetObject robject : nodeDiscovery.discoverAllObjects()){
+        for (RemoteEchonetObject robject : nodeDiscovery.discoverAllObjectsBlocking()){
             System.out.printf("IP: %-15s, EOJ: %s \n", robject.getQueryIp(), robject.getEOJ().toString());
         }
         
