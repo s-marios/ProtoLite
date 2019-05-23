@@ -18,8 +18,8 @@ import jaist.echonet.wrappers.AbstractObjectWrapper;
 import jaist.echonet.wrappers.NodeProfileObjectImpl;
 
 /**
- * The core class of this framework, represents an ECHONET node. 
- * 
+ * The core class of this framework, represents an ECHONET node.
+ *
  * @author Sioutis Marios
  */
 public class EchonetNode {
@@ -39,7 +39,7 @@ public class EchonetNode {
     /**
      * Gets the associated with this node <code>NodeProfileObject</code>. There
      * is no need to access this object unless you know what you're doing
-     * 
+     *
      * @return the {@link NodeProfileObject}
      */
     public NodeProfileObject getNodeProfileObject() {
@@ -47,8 +47,9 @@ public class EchonetNode {
     }
 
     /**
-     * Gets the local IP with which initialization was attempted. This does NOT 
+     * Gets the local IP with which initialization was attempted. This does NOT
      * necessarily return the IP address of the outgoing network interface.
+     *
      * @return the potential IP address this node has
      */
     public InetAddress getIP() {
@@ -56,8 +57,9 @@ public class EchonetNode {
     }
 
     /**
-     * Gets the multicast group IP address associated with this node. May be 
+     * Gets the multicast group IP address associated with this node. May be
      * IPv4 or IPv6
+     *
      * @return the multicast IP address (IPv4 or IPv6)
      */
     public InetAddress getGroupIP() {
@@ -65,7 +67,8 @@ public class EchonetNode {
     }
 
     /**
-     * Null constructor. IP initialization will default to IPv4 and all interfaces
+     * Null constructor. IP initialization will default to IPv4 and all
+     * interfaces
      */
     public EchonetNode() {
         setup(null);
@@ -73,9 +76,9 @@ public class EchonetNode {
 
     /**
      * Constructor. IP initialization will try to bind the <code>address</code>
-     * argument. Can be either IPv4 or IPv6. However, the node will listen to 
+     * argument. Can be either IPv4 or IPv6. However, the node will listen to
      * ALL AVAILABLE NETWORK INTERFACES.
-     * 
+     *
      * @param address the address to attempt to bind to
      */
     public EchonetNode(InetAddress address) {
@@ -84,8 +87,9 @@ public class EchonetNode {
 
     /**
      * Register a LocalEchonetObject with this node. This operation is necessary
-     * and must be done once for each LocalEchonetObject after its initialization
-     * has finished 
+     * and must be done once for each LocalEchonetObject after its
+     * initialization has finished
+     *
      * @param echobj the EchonetObject to register
      * @see LocalEchonetObject
      */
@@ -99,12 +103,12 @@ public class EchonetNode {
         echobj.setEchonetNode(this);
         profile.registerEchonetObject(echobj);
     }
-    
-    public void unregisterEchonetObject(LocalEchonetObject echobj){
+
+    public void unregisterEchonetObject(LocalEchonetObject echobj) {
         profile.unregisterEchonetObject(echobj);
     }
-    
-    public LocalEchonetObject getEchonetObject(EOJ eoj){
+
+    public LocalEchonetObject getEchonetObject(EOJ eoj) {
         return profile.getEchonetObject(eoj);
     }
 
@@ -124,10 +128,10 @@ public class EchonetNode {
     }
 
     /**
-     * Gets an instance of a {@link RemoteEchonetObject}. This is the only method
-     * to obtain a reference to a remote object. The remote object represented
-     * may be reused in many other places
-     * 
+     * Gets an instance of a {@link RemoteEchonetObject}. This is the only
+     * method to obtain a reference to a remote object. The remote object
+     * represented may be reused in many other places
+     *
      * @param ip The IP address of the remote object. May be a multicast address
      * thus specifying all devices in the network (useful for multicast queries)
      * @param eoj The echonet object information of the remote object. May use
@@ -145,8 +149,26 @@ public class EchonetNode {
             synchronized (openqueries) {
                 Iterator<Map.Entry<Integer, Query>> i = openqueries.entrySet().iterator();
                 while (i.hasNext()) {
-                    Map.Entry<Integer, Query> query = i.next();
-                    if (query.getValue().hasExpired()) {
+                    Query query = i.next().getValue();
+                    if (query.hasExpired()) {
+                        
+
+                        //notify waiting clients possibly?
+                        //check if a) zero responses and b) a registered handler
+                        if (query.getResponseAvailable() == 0) {
+                            //notify listeners
+                            //TODO why is this cast necessary? 
+                            // why are openqueries of type Query and not EchonetQuery?
+                            if (query instanceof EchonetQuery) {
+                                EchonetQuery eq = (EchonetQuery) query;
+                                if (eq.getListener() != null) {
+                                    runner.postJob(eq.getListener(), null);
+                                }
+                            }
+
+                        }
+                        
+                        
                         i.remove();
                     }
                 }
@@ -157,10 +179,10 @@ public class EchonetNode {
     /**
      * Starts the operation of this node. Must be called in order to start the
      * receiver thread of the node.
-     * 
-     * @return the thread object associated with this node. The node is by default
-     * a daemon thread, so create some other processing thread to avoid the
-     * program exiting
+     *
+     * @return the thread object associated with this node. The node is by
+     * default a daemon thread, so create some other processing thread to avoid
+     * the program exiting
      */
     public Thread start() {
         Thread t = new Thread(new Runnable() {
@@ -195,12 +217,10 @@ public class EchonetNode {
                     continue;
                 }
 
-
                 //Check if request is for an object class we know of
                 //if yes, further check if it is for an instance
                 //if it is not for a specific instance, process the list of 
                 //objects returned previously.
-
                 echobjlist_p = this.profile.getEchonetObjectsWithClass(pparse.getDEOJ().getClassEOJ());
                 if (echobjlist_p == null) {
                     continue;
@@ -373,7 +393,7 @@ public class EchonetNode {
     }
 
     /**
-     *  Used to setup the skeleton for a response. Seoj is the sending eoj.
+     * Used to setup the skeleton for a response. Seoj is the sending eoj.
      */
     private void craftEchonetResponse(EchonetPayloadCreator create, ServiceCode esv, EOJ seoj) {
         synchronized (create) {
@@ -408,11 +428,12 @@ public class EchonetNode {
     }
 
     /**
-     * Used to make notifications. Echonet objects can use this method to notify 
+     * Used to make notifications. Echonet objects can use this method to notify
      * the network for changes in the value of their properties
-     * 
+     *
      * @param sender The originator of this notification
-     * @param property the property whose value will be notified across the network
+     * @param property the property whose value will be notified across the
+     * network
      */
     public void makeNotification(AbstractEchonetObject sender, EchonetProperty property) {
         synchronized (pcreate) {
@@ -424,22 +445,22 @@ public class EchonetNode {
     }
 
     /**
-     * Makes and sends an echonet query to the network. All types of services are
-     * implemented using this method.
-     * 
-     * 
+     * Makes and sends an echonet query to the network. All types of services
+     * are implemented using this method.
+     *
+     *
      * @param sender the originator of this query
      * @param target the destination of this query
      * @param service the desired echonet service
      * @param properties the main property list. For example, in the case of a
-     * GET request, a list of {@link EchonetDummyProperty} objects can be used 
+     * GET request, a list of {@link EchonetDummyProperty} objects can be used
      * to express the properties whose values to get
      * @param secondary the secondary property list (in case of SETGET requests,
      * can be null)
      * @param listener an <code>EchoEventListener</code> that will be executed
      * asynchronously as soon as an answer is received (can be null)
-     * @return a query object used for synchronization and synchronous processing
-     * of the answers
+     * @return a query object used for synchronization and synchronous
+     * processing of the answers
      * @see EchonetAnswer
      * @see EchoEventListener
      */
@@ -628,20 +649,19 @@ public class EchonetNode {
     }
 
     /**
-     * Registers a notification event listener to be executed when a notification
-     * of interest is received. The notifications for which the listener will be
-     * executed is decided by the parameters passed.
-     * 
-     * semantics: if any parameter is null then it is considered as "any" 
-     * match. 
-     * 
+     * Registers a notification event listener to be executed when a
+     * notification of interest is received. The notifications for which the
+     * listener will be executed is decided by the parameters passed.
+     *
+     * semantics: if any parameter is null then it is considered as "any" match.
+     *
      * @param ip the IP address of a remote object (may be a unicast address,
      * may be a subnet address, or null for "any" address)
      * @param classGroupCode the group code of objects of interest (may be null)
      * @param classCode the class code of interest (may be null)
      * @param instanceCode the instance code of interest (may be null)
      * @param property the property code of interest (may be null)
-     * @param listener the listener to be executed when a notification event  
+     * @param listener the listener to be executed when a notification event
      * that matches the criteria specified above is received
      */
     public void registerForNotifications(InetAddress ip,
@@ -650,16 +670,17 @@ public class EchonetNode {
 
         this.nmanager.register(ip, classGroupCode, classCode, instanceCode, property, listener);
     }
-    
+
     /**
-     * Get a RemoteNodeDiscovery instance for performing network object discovery.
-     * User the methods provided by @RemoteNodeDiscovery to discover all the
-     * objects present in the network. Will take time since it serializes requests.
-     * 
+     * Get a RemoteNodeDiscovery instance for performing network object
+     * discovery. User the methods provided by @RemoteNodeDiscovery to discover
+     * all the objects present in the network. Will take time since it
+     * serializes requests.
+     *
      * @return a new instance of RemoteNodeDiscovery
      * @see NodeDiscovery
      */
-    public NodeDiscovery getNodeDiscovery(){
+    public NodeDiscovery getNodeDiscovery() {
         return new NodeDiscovery(this);
     }
 }

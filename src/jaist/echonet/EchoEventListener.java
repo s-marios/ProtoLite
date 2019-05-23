@@ -46,7 +46,7 @@ public interface EchoEventListener{
      * asynchronous processing. Register this listener when making a query
      * as the last argument of {@link EchonetNode#makeQuery(jaist.echonet.AbstractEchonetObject, jaist.echonet.AbstractEchonetObject, jaist.echonet.ServiceCode, java.util.List, java.util.List, jaist.echonet.EchoEventListener) }
      * 
-     * @param answer the answer to the query
+     * @param answer the answer to the query, null if the query timed out without receiving an answer
      * @see EchonetAnswer
      */
     public void processAnswer(EchonetAnswer answer);
