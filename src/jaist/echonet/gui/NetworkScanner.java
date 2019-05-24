@@ -430,7 +430,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
 
     @Override
     public void processAnswer(EchonetAnswer answer) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
