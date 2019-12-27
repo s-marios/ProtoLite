@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Representation of a remote echonet object.
+ * Representation of a remote ECHONET object.
  *
  * @author Sioutis Marios
  */
@@ -165,13 +165,13 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         byte[] writecodes = AbstractObjectWrapper.propertyMap(writemap);
         byte[] readcodes = AbstractObjectWrapper.propertyMap(readmap);
 
-        ArrayList<EchonetRemoteProperty> properties = new ArrayList<>();
+        ArrayList<EchonetRemoteProperty> property_list = new ArrayList<>();
         //start from the read map
         if (readcodes == null) {
             return false;
         }
         for (Byte propcode : readcodes) {
-            properties.add(new EchonetRemoteProperty(this, propcode, true, false, false));
+            property_list.add(new EchonetRemoteProperty(this, propcode, true, false, false));
         }
 
         //write properties
@@ -179,7 +179,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
             return false;
         }
         for (Byte propcode : writecodes) {
-            EchonetRemoteProperty property = getOrCreateProperty(propcode, properties);
+            EchonetRemoteProperty property = getOrCreateProperty(propcode, property_list);
             property.setWritable(true);
         }
 
@@ -188,12 +188,12 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
             return false;
         }
         for (Byte propcode : announcecodes) {
-            EchonetRemoteProperty property = getOrCreateProperty(propcode, properties);
+            EchonetRemoteProperty property = getOrCreateProperty(propcode, property_list);
             property.setNotifies(true);
         }
 
         //add the properties to the remote object
-        for (EchonetRemoteProperty property : properties) {
+        for (EchonetRemoteProperty property : property_list) {
             this.properties.put(property.getPropertyCode(), property);
         }
 

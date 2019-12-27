@@ -8,18 +8,18 @@ import java.util.Map.Entry;
 import java.net.InetAddress;
 
 /**
- * Part of {@link EchonetNode} it is responsible for the management and
- * execution of notification event listeners. It is multithreaded.
+ * Part of {@link EchonetNode}, it is responsible for the management and
+ * execution of notification event listeners. Multi-threaded manager.
  *
  * @author Sioutis Marios
  */
 class NotificationManager {
 
-    private List<Map.Entry<int[], EchoEventListener>> runagainst = new ArrayList<Entry<int[], EchoEventListener>>();
+    private final List<Map.Entry<int[], EchoEventListener>> runagainst = new ArrayList<>();
 
     public NotificationManager() {
     }
-    
+
     private synchronized void checkAgainst(int[] matchme, RemoteEchonetObject robject, EchonetProperty property) {
         for (Map.Entry<int[], EchoEventListener> entry : runagainst) {
             if (matches(matchme, entry.getKey())) {
@@ -58,8 +58,6 @@ class NotificationManager {
     public void invoke(RemoteEchonetObject robject, List<EchonetProperty> properties) {
 
         for (EchonetProperty property : properties) {
-            //TODO i'm not sure this is the right place to prune 
-            // empty properies but i'll do it here
             if (property.isEmpty()) {
                 continue;
             }
@@ -74,10 +72,10 @@ class NotificationManager {
             this.checkAgainst(matchme, robject, property);
         }
     }
-    
+
     public synchronized void register(InetAddress ip, Byte classGroupCode, Byte classCode, Byte instanceCode, Byte property, EchoEventListener listener) {
-            int[] match = makeMatch(ip, classGroupCode, classCode, instanceCode, property);
-            runagainst.add(new AbstractMap.SimpleEntry(match, listener));
+        int[] match = makeMatch(ip, classGroupCode, classCode, instanceCode, property);
+        runagainst.add(new AbstractMap.SimpleEntry(match, listener));
     }
 
     protected int byteToIntMatch(Byte b) {

@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author haha
  */
-public class NodeDiscovery {
+public class NodeDiscovery implements EchoEventListener{
 
     private final EchonetNode context;
 
@@ -88,5 +88,24 @@ public class NodeDiscovery {
         }
         objects.addAll(nodes);
         return objects;
+    }
+    
+    public void test() {
+        this.context.registerForNotifications(null, (byte) 0x0E, (byte) 0xF0, (byte) 0x00, (byte) 0xD5, this);
+    }
+
+    @Override
+    public boolean processWriteEvent(EchonetProperty property) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean processNotificationEvent(RemoteEchonetObject robject, EchonetProperty property) {
+        return true;
+    }
+
+    @Override
+    public void processAnswer(EchonetAnswer answer) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

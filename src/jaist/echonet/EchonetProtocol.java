@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jaist.echonet;
 
 /**
  * Various constants regarding the ECHONET Lite protocol
- * 
+ *
  * @author Sioutis Marios
  */
 public class EchonetProtocol {
@@ -32,7 +28,7 @@ public class EchonetProtocol {
      */
     public static final long AWAITRESPONSEMULTICAST = 10000; //10secs;
     /**
-     * Node profile eoj
+     * Node profile EOJ
      */
     public static EOJ NODEPROFILEOJ = new EOJ((byte) 0x0E, (byte) 0xF0, (byte) 0x01);
     /**
@@ -41,11 +37,12 @@ public class EchonetProtocol {
     public static final byte[] ECHONETVERSION = {4, 0, 'a', 0};
 
     /**
-     * This is now part of the {@link EOJ} class
-     * The lower 3 bytes contain the eoj
-     * @param eoj 
+     * This is now part of the {@link EOJ} class The lower 3 bytes contain the
+     * eoj
+     *
+     * @param eoj
      * @return an int to be used in maps
-     * @deprecated 
+     * @deprecated
      */
     @Deprecated
     public static int getEOJAsInt(byte[] eoj) {
@@ -64,11 +61,12 @@ public class EchonetProtocol {
 
     /**
      * This is now part of the {@link EOJ} class
-     * 
+     *
      * the lower 2 bytes contain only the class group and class code
-     * @param eoj 
-     * @return an int to be used in maps 
-     * @deprecated 
+     *
+     * @param eoj
+     * @return an int to be used in maps
+     * @deprecated
      */
     @Deprecated
     public static int getEOJClassAsInt(byte[] eoj) {

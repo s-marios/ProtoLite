@@ -26,7 +26,7 @@ class NotificationManagerSingleThreaded extends NotificationManager {
     }
 
     protected NotificationManagerSingleThreaded() {
-    };
+    }
     
     @Override
     public void invokeNotificationManager(RemoteEchonetObject robject, List<EchonetProperty> properties) {

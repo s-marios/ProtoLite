@@ -24,9 +24,8 @@ import jaist.echonet.wrappers.NodeProfileObjectImpl;
  */
 public class EchonetNode {
 
-    private Map<Integer, Query> openqueries = new ConcurrentHashMap();
-    //private NotificationManager nmanager = new NotificationManager();
-    private NotificationManager nmanager = NotificationManagerSingleThreaded.get();
+    private final Map<Integer, Query> openqueries = new ConcurrentHashMap();
+    private final NotificationManager nmanager = NotificationManagerSingleThreaded.get();
     private final EchonetPayloadCreator pcreate = new EchonetPayloadCreator();
     private final EchonetPayloadCreator presponse = new EchonetPayloadCreator();
     private final EchonetPayloadParser pparse = new EchonetPayloadParser(null);
@@ -151,7 +150,6 @@ public class EchonetNode {
                 while (i.hasNext()) {
                     Query query = i.next().getValue();
                     if (query.hasExpired()) {
-                        
 
                         //notify waiting clients possibly?
                         //check if a) zero responses and b) a registered handler
@@ -165,10 +163,8 @@ public class EchonetNode {
                                     runner.postJob(eq.getListener(), null);
                                 }
                             }
-
                         }
-                        
-                        
+
                         i.remove();
                     }
                 }
@@ -212,7 +208,6 @@ public class EchonetNode {
             try {
                 InetAddress remote = network.recvEchonetPayload(this.pparse);
                 if (pparse.getErrno() != EchonetPayloadParser.errorcode.SUCCESS) {
-                    // TODO do some logging Logger.getLogger(EchonetNode.class.getName()).log(Level.SEVERE, null);
                     Logging.getLogger().log(Level.INFO, "Dropped packet. Reason: {0}", pparse.getErrno());
                     continue;
                 }
@@ -242,7 +237,6 @@ public class EchonetNode {
             } catch (SocketTimeoutException ex) {
                 //have this so that the thread wakes up from time to time to
                 //check if it should end
-                //System.out.println("woke up");
             } catch (IOException ex) {
                 Logger.getLogger(EchonetNode.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -251,16 +245,12 @@ public class EchonetNode {
 
     private void switchLogic(InetAddress remote, List<LocalEchonetObject> echobjlist) {
         //main switching logic is here is here
-        RemoteEchonetObject vobject = null;
         switch (ServiceCode.getOpcode(pparse.getESV())) {
-            case INF_REQ:
-//                        System.out.println("INF REQ");// intentional fall through!
+            case INF_REQ:// intentional fall through!
             case Get:
                 handleGetInfRequests(remote, echobjlist, ServiceCode.getOpcode(pparse.getESV()));
                 break;
-
             case INF_SNA: //intentional
-//                        System.out.println("INF_SNA");
             case INF: //intentional
                 handleIncomingNotifications(remote);
                 break;
@@ -324,7 +314,6 @@ public class EchonetNode {
                                 //an error occured during write!
                                 error = true;
                                 presponse.writeOperand(property.getPropertyCode(), property.read());
-                                //pcreate.setESV(ServiceCode.SetI_SNA);
                             } else {
                                 //everything went ok. write prop code and zero data
                                 presponse.writeOperand(property.getPropertyCode(), null);
@@ -367,7 +356,6 @@ public class EchonetNode {
                         //an error occured during write!
                         error = true;
                         presponse.writeOperand(property.getPropertyCode(), property.read());
-                        //pcreate.setESV(ServiceCode.SetI_SNA);
                     } else {
                         //everything went ok. write prop code and zero data
                         presponse.writeOperand(property.getPropertyCode(), null);
@@ -479,12 +467,6 @@ public class EchonetNode {
                 default:
                     writeOperands(properties);
             }
-            /*
-            if (service == ServiceCode.Get) {
-            this.writeOperandsNull(properties);
-            } else {
-            this.writeOperands(properties);
-            }*/
 
             //write the second set
             if (secondary != null && secondary.size() > 0) {
@@ -507,7 +489,7 @@ public class EchonetNode {
         }
     }
 
-    private EchonetAnswer prepareResponseAndUpdateObjects(
+    private EchonetAnswer prepareAnswerAndUpdateObjects(
             Query query, ServiceCode service,
             RemoteEchonetObject vobject,
             List<EchonetProperty> properties,
@@ -542,19 +524,15 @@ public class EchonetNode {
 
         if (query instanceof EchonetQuery) {
             EchonetQuery multiquery = (EchonetQuery) query;
-            EchonetAnswer answer = null;
             synchronized (multiquery) {
                 RemoteEchonetObject vobject = getRemoteObject(remote, pparse.getSEOJ());
-                answer = prepareResponseAndUpdateObjects(multiquery, service, vobject, pparse.getPropertyList(), pparse.getSecondPropertyList());
+                EchonetAnswer answer = prepareAnswerAndUpdateObjects(multiquery, service, vobject, pparse.getPropertyList(), pparse.getSecondPropertyList());
                 multiquery.add(answer);
                 multiquery.notifyAll();
                 //invoke handler, if applicable.
-                //TODO test this out.
                 if (multiquery.getListener() != null) {
-                    //multiquery.getListener().processAnswer(answer);
                     runner.postJob(multiquery.getListener(), answer);
                 }
-                return;
             }
         }
     }
@@ -629,20 +607,7 @@ public class EchonetNode {
         }
     }
 
-    private void writeOperands(byte[] properties) {
-        for (byte property : properties) {
-            pcreate.writeOperand(property, null);
-        }
-
-    }
-
     private void writeOperandsNull(List<EchonetProperty> properties) {
-        for (EchonetProperty property : properties) {
-            pcreate.writeOperand(property.getPropertyCode(), null);
-        }
-    }
-
-    private void writeOperandsNull(EchonetProperty[] properties) {
         for (EchonetProperty property : properties) {
             pcreate.writeOperand(property.getPropertyCode(), null);
         }

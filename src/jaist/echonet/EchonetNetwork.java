@@ -18,8 +18,8 @@ class EchonetNetwork {
     private InetAddress local, group;
     private short dport;
     private MulticastSocket msocket;
-    private byte[] receivebuffer = new byte[1500];
-    private byte[] sendbuffer = new byte[1500];
+    private final byte[] receivebuffer = new byte[1500];
+    private final byte[] sendbuffer = new byte[1500];
 
     public InetAddress getLocalIP() {
         return this.local;
@@ -62,14 +62,13 @@ class EchonetNetwork {
             //TODO it is possible to bind to specific interface by using InetSocektAddress as an arg to multicast socket.
             dport = EchonetProtocol.ECHONETPORT;
             msocket = new MulticastSocket(EchonetProtocol.ECHONETPORT);
-            //System.out.println("Ip address bound to: " + this.ip.getHostAddress());
 
             //TODO TEST THIS!!!
             //SELECTS THE MULTICAST INTERFACE
-            if (!wasNull){
+            if (!wasNull) {
                 msocket.setInterface(local);
             }
-            
+
             msocket.setReceiveBufferSize(1000000);
             // want to avoid multiple instances of echonet node,
             // have them fail

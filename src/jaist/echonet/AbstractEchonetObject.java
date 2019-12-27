@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Abstract class that represents Echonet objects. Implements some skeleton
- * logic for both remote and local echonet objects
+ * Abstract class that represents ECHONET objects. Implements some skeleton
+ * logic for both remote and local ECHONET objects
  * @author Sioutis Marios
  */
 public abstract class AbstractEchonetObject implements QueryableByOthers {
@@ -15,7 +15,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
      * The echonet node associated with this object. will be used for queries
      */
     protected EchonetNode echonetNode = null;
-    private List<EchoEventListener> listeners = new ArrayList<EchoEventListener>();
+    private final List<EchoEventListener> listeners = new ArrayList<>();
     /**
      * The class information associated with this object
      */
@@ -198,7 +198,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
         if (processed) {
             //write the value after the whole thing has been processed. 
             error = writeProperty(copyfrom.getPropertyCode(), copyfrom.read());
-            //chech if property warrants an INF multicast
+            //check if property warrants an INF multicast
             if (!error && this.properties.get(copyfrom.getPropertyCode()).doesNotify()) {
                 inform(copyfrom);
             }

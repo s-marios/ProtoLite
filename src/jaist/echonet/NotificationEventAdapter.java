@@ -1,9 +1,9 @@
 package jaist.echonet;
 
 /**
- * Adapter for notification Events only. Use instead of an {@link EchoEventListener}
- * when only notification event processing is desired
- * 
+ * Adapter for notification Events only. Use instead of an
+ * {@link EchoEventListener} when only notification event processing is desired
+ *
  * @author Sioutis Marios
  */
 public abstract class NotificationEventAdapter implements EchoEventListener {
@@ -13,9 +13,8 @@ public abstract class NotificationEventAdapter implements EchoEventListener {
         return false;
     }
 
-   
     @Override
     public void processAnswer(EchonetAnswer answer) {
     }
-    
+
 }

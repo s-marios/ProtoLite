@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A dummy property that is used only to convey the code of a property. Read and
- * write operations will fail
- * 
+ * A dummy property that is used only to convey the code of an
+ * {@link EchonetProperty}. Read and write operations will fail
+ *
  * @author Sioutis Marios
  */
-public class EchonetDummyProperty extends EchonetProperty{
-    
+public class EchonetDummyProperty extends EchonetProperty {
+
     /**
      * Constructor. The only argument is the property code
-     * 
+     *
      * @param propcode The property code as a byte for this property
      */
-    public EchonetDummyProperty(byte propcode){
+    public EchonetDummyProperty(byte propcode) {
         super(propcode, true, true);
     }
 
@@ -34,15 +34,16 @@ public class EchonetDummyProperty extends EchonetProperty{
     public boolean isEmpty() {
         return true;
     }
-    
-    public static List<EchonetProperty> getDummies(byte[] codelist){
-        if(codelist == null || codelist.length == 0)
+
+    public static List<EchonetProperty> getDummies(byte[] codelist) {
+        if (codelist == null || codelist.length == 0) {
             return null;
-        List<EchonetProperty> alist =new ArrayList<EchonetProperty>();
-        for (byte propcode : codelist){
+        }
+        List<EchonetProperty> alist = new ArrayList<>();
+        for (byte propcode : codelist) {
             alist.add(new EchonetDummyProperty(propcode));
         }
         return alist;
     }
-    
+
 }

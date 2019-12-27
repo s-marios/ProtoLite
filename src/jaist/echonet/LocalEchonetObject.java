@@ -17,7 +17,7 @@ class UnusedEOJGenerator {
     private HashMap<EOJ, Byte> usedEOJMap;
 
     public UnusedEOJGenerator() {
-        usedEOJMap = new HashMap<EOJ, Byte>();
+        usedEOJMap = new HashMap<>();
     }
 
     public EOJ generate(EOJ eoj) {
@@ -27,13 +27,14 @@ class UnusedEOJGenerator {
         if (b != null) {
             unused = (byte) (b + 1);
         }
+
         usedEOJMap.put(ceoj, unused);
         return ceoj.getEOJWithInstanceCode(unused);
     }
 }
 
 /**
- * Representation of a local echonet object.
+ * Representation of a local ECHONET object.
  *
  * @author Sioutis Marios
  */
@@ -112,9 +113,9 @@ public class LocalEchonetObject extends AbstractEchonetObject {
      */
     public final void updatePropertyMap() {
         Collection<EchonetProperty> props = getPropertyList();
-        List<EchonetProperty> readable = new ArrayList<EchonetProperty>();
-        List<EchonetProperty> writeable = new ArrayList<EchonetProperty>();
-        List<EchonetProperty> notifies = new ArrayList<EchonetProperty>();
+        List<EchonetProperty> readable = new ArrayList<>();
+        List<EchonetProperty> writeable = new ArrayList<>();
+        List<EchonetProperty> notifies = new ArrayList<>();
 
         //Add 9d 9e 9f as dummies so that they are counted when we generate the
         //property maps
@@ -163,7 +164,6 @@ public class LocalEchonetObject extends AbstractEchonetObject {
                 mask <<= bittoflip;
                 //4)or the mask with whatever results we have there.
                 map[byteno] |= mask;
-//                System.out.printf("Property: 0x%2X, byteno : %d, bitflip: %d, mask: %d, contents: 0x%2X%n", property.getPropertyCode(), byteno, bittoflip, mask, map[byteno]);
             }
         }
         return map;

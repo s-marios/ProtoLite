@@ -1,4 +1,3 @@
-
 package jaist.echonet;
 
 import java.util.AbstractMap;
@@ -53,8 +52,8 @@ class CallbackRunner implements Runnable {
     
     class DoTask implements Runnable{
 
-        private EchoEventListener listener;
-        private EchonetAnswer answer;
+        private final EchoEventListener listener;
+        private final EchonetAnswer answer;
         
         DoTask(EchoEventListener listener, EchonetAnswer answer){
             this.listener = listener;
@@ -63,7 +62,6 @@ class CallbackRunner implements Runnable {
         @Override
         public void run() {
             listener.processAnswer(answer);
-        }
-    
+        }    
     }
 }

@@ -3,7 +3,7 @@ package jaist.echonet;
 import java.nio.ByteBuffer;
 
 /**
- * An EchonetPrpoerty implementation that acts only as a byte buffer
+ * An {@link EchonetPrpoerty} implementation that acts only as a byte buffer
  * @author Sioutis Marios
  */
 public class EchonetCharacterProperty extends EchonetProperty {
@@ -112,6 +112,6 @@ public class EchonetCharacterProperty extends EchonetProperty {
 
     @Override
     public boolean isEmpty() {
-        return databuffer.limit() == 0 ? true : false;
+        return databuffer.limit() == 0;
     }
 }

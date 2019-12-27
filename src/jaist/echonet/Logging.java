@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package jaist.echonet;
 
 import java.util.logging.Level;
@@ -17,12 +12,11 @@ import java.util.logging.Logger;
  *
  * Any debug messages should be set to Level.FINE or less.
  *
- *
- * @author s-marios
+ * @author Sioutis Marios
  */
 public class Logging {
 
-    static private Logger logger;
+    private static Logger logger = Logger.getLogger("jaist.echonet.Logging");
 
     /**
      * get the global logger singleton
@@ -30,11 +24,6 @@ public class Logging {
      * @return the global logger (create one if necessary)
      */
     static public Logger getLogger() {
-
-        if (logger == null) {
-            logger = Logger.getLogger("jaist.echonet.Logging");
-
-        }
         return logger;
     }
 
