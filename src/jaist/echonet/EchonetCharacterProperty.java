@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 /**
  * An {@link EchonetPrpoerty} implementation that acts only as a byte buffer
+ *
  * @author Sioutis Marios
  */
 public class EchonetCharacterProperty extends EchonetProperty {
@@ -15,7 +16,7 @@ public class EchonetCharacterProperty extends EchonetProperty {
     //use when data is not going to change.
     /**
      * Constructor
-     * 
+     *
      * @param propcode the property code
      * @param iswriteable true if the property is writable, false otherwise
      * @param notifies true if the property should notify, false otherwise
@@ -27,14 +28,14 @@ public class EchonetCharacterProperty extends EchonetProperty {
         initContent(data.length, data);
         setCapacity(data.length);
     }
-    
+
     @Deprecated
     public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, byte[] data) {
         super(propcode, isreadable, iswriteable, notifies);
         initContent(data.length, data);
         setCapacity(data.length);
     }
-    
+
     public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, int capacity, int capacitypolicy, byte[] data) {
         super(propcode, isreadable, iswriteable, notifies, capacity, capacitypolicy);
         initContent(capacity, data);
@@ -58,33 +59,36 @@ public class EchonetCharacterProperty extends EchonetProperty {
 
     /**
      * Constructor
-     * 
+     *
      * @param propcode the property code
-     * @param iswriteable iswriteable true if the property is writable, false otherwise
+     * @param iswriteable iswriteable true if the property is writable, false
+     * otherwise
      * @param notifies true if the property should notify, false otherwise
-     * @param datalength the initial data length. Data will be initialized to zero
+     * @param datalength the initial data length. Data will be initialized to
+     * zero
      */
     @Deprecated
     public EchonetCharacterProperty(byte propcode, boolean iswriteable, boolean notifies, int datalength) {
         super(propcode, iswriteable, notifies);
         initContentSize(datalength);
     }
-    
+
     @Deprecated
-    public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, int datalength){
+    public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, int datalength) {
         super(propcode, isreadable, iswriteable, notifies);
         initContentSize(datalength);
     }
-    
-    public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, int capacity, int capacitypolicy){
+
+    public EchonetCharacterProperty(byte propcode, boolean isreadable, boolean iswriteable, boolean notifies, int capacity, int capacitypolicy) {
         super(propcode, isreadable, iswriteable, notifies, capacity, capacitypolicy);
         initContentSize(capacity);
     }
 
     /**
      * Returns the data held in this property.
-     * 
-     * @return It will never be null, but the length can be zero. Check against this.
+     *
+     * @return It will never be null, but the length can be zero. Check against
+     * this.
      */
     @Override
     public synchronized byte[] read() {

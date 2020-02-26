@@ -92,11 +92,13 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
     public byte[] readProperty(AbstractEchonetObject whoasks, EchonetProperty property) {
         EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.Get, Collections.singletonList(property), null, null);
 
-        //we do this to block until the answer returns. but there are two
-        //choices to get the actual data. get it from the object, or read them
-        //from the answer.
+        //return what we read from the first property in the answer
         EchonetAnswer answer = query.getNextAnswer();
-        return super.readProperty(property.getPropertyCode());
+        if (answer != null && !answer.getProperties().isEmpty()) {
+            return answer.getProperties().get(0).read();
+        }
+        //properties are empty, the operation failed.
+        return null;
     }
 
     /**
