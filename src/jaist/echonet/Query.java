@@ -21,7 +21,9 @@ public interface Query {
 
     long getSubmissionTime();
 
-    long getTimoutInMillis();
+    long getTimeout();
+
+    void setTimeout(long timeout);
 
     boolean hasExpired();
 }

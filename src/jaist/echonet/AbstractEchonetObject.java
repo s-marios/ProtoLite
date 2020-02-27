@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Abstract class that represents ECHONET objects. Implements some skeleton
  * logic for both remote and local ECHONET objects
+ *
  * @author Sioutis Marios
  */
 public abstract class AbstractEchonetObject implements QueryableByOthers {
@@ -25,13 +26,14 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
      */
     protected Map<Byte, EchonetProperty> properties = new ConcurrentHashMap<>();
     /**
-     * The ip address of this object. Not really useful, get the ip address by 
+     * The ip address of this object. Not really useful, get the ip address by
      * accessing the context
      */
     protected InetAddress queryip = null;
 
     /**
      * Gets a collection of all the properties of this echonet object
+     *
      * @return a collection of all the properties of this object
      */
     public Collection<EchonetProperty> getPropertyList() {
@@ -41,7 +43,8 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
     /**
      * Gets a reference to the property of this echonet object with the supplied
      * property code
-     * @param propertycode the property code used as key 
+     *
+     * @param propertycode the property code used as key
      * @return the echonet property associated with the key, null if not
      * available
      */
@@ -51,6 +54,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Sets the EchonetNode context associated with this echonet object
+     *
      * @param node the EchonetNode to set
      */
     public void setEchonetNode(EchonetNode node) {
@@ -59,6 +63,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Gets the node context of this echonet object
+     *
      * @return the associated EchonetNode instance
      */
     public EchonetNode getEchonetNode() {
@@ -67,6 +72,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Constructor
+     *
      * @param eoj echonet class object information
      */
     public AbstractEchonetObject(EOJ eoj) {
@@ -75,6 +81,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Adds a property to this object
+     *
      * @param property the property to be added
      */
     public void addProperty(EchonetProperty property) {
@@ -83,8 +90,9 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Get the class object information of this object
-     * @return the EOJ reference that holds the class object information for this
-     * object
+     *
+     * @return the EOJ reference that holds the class object information for
+     * this object
      */
     public EOJ getEOJ() {
         return eoj;
@@ -92,8 +100,9 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Set the class object information
-     * @param eoj the EOJ reference that holds the class object information for this
-     * object
+     *
+     * @param eoj the EOJ reference that holds the class object information for
+     * this object
      */
     public void setEOJ(EOJ eoj) {
         this.eoj = eoj;
@@ -112,7 +121,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
     /**
      * Returns the IP address associated with this echonet object. For local
      * echonet objects this method is not accurate.
-     * 
+     *
      * @return the ip address associated with this object
      */
     public InetAddress getQueryIp() {
@@ -121,7 +130,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Reads the specified property
-     * 
+     *
      * @param propertycode the code of the property to be read
      * @return a byte array with the data of this property, null if the property
      * is not available
@@ -134,7 +143,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
         }
         //ESV error
         //TODO remove doesNotify
-        if (!( property.isReadable() || property.doesNotify() ) ) {
+        if (!(property.isReadable() || property.doesNotify())) {
             return null;
         }
         return property.read();
@@ -142,6 +151,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Set the IP address of this object.
+     *
      * @param queryip the IP to set
      */
     public void setQueryip(InetAddress queryip) {
@@ -150,7 +160,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Attempts an unprivileged write of the specified property.
-     * 
+     *
      * @param propertycode the code of the propety to be written
      * @param data the data to write
      * @return true if an error occurred, false otherwise
@@ -175,8 +185,8 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
     /**
      * Makes an attempt for an unprivilleged write of the specified property.
      * Will call all the write event listeners associated with this object.
-     * 
-     * @param copyfrom the property to use as a source (copy data and property 
+     *
+     * @param copyfrom the property to use as a source (copy data and property
      * code from)
      * @return true if an error occurred, false otherwise
      */
@@ -208,6 +218,7 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
 
     /**
      * Registers the supplied write listener
+     *
      * @param listener the write listener to be registered. Will be called when
      * there are write attempts.
      */
@@ -216,9 +227,9 @@ public abstract class AbstractEchonetObject implements QueryableByOthers {
     }
 
     /**
-     * Used internally to make notifications when the data of a property that 
+     * Used internally to make notifications when the data of a property that
      * "notifies" are changed
-     * 
+     *
      * @param property the property that will make the notify (its contents will
      * be notified to the network)
      */

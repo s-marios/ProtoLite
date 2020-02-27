@@ -14,14 +14,23 @@ import java.util.List;
 public class RemoteEchonetObject extends AbstractEchonetObject {
 
     /**
-     * @return the service code used with writeProperty
+     * default expiration for queries on this object
+     */
+    private long timeout = EchonetProtocol.AWAITRESPONSE;
+
+    /**
+     * Get the service code used when Setting this property.
+     *
+     * @return the service code used with writeProperty, either
+     * {@link WriteMode#SetC SetC} or {@link WriteMode#SetI SetI}.
      */
     public WriteMode getWriteMode() {
         return writemode;
     }
 
     /**
-     * Set the service code to be used when using writeProperty (SetC/SetI).
+     * Set the service code to be used when using writeProperty, either
+     * {@link WriteMode#SetC SetC} or {@link WriteMode#SetI SetI}.
      *
      * @param setmode the service code to use with writeProperty
      */
@@ -29,8 +38,17 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         this.writemode = setmode;
     }
 
+    /**
+     * Representation of the service code used when setting a property.
+     */
     public enum WriteMode {
+        /**
+         * Set request, response required
+         */
         SetC,
+        /**
+         * Set request, response NOT required
+         */
         SetI
     }
 
@@ -48,6 +66,26 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         super(eoj);
         this.queryip = addr;
         writemode = WriteMode.SetC;
+    }
+
+    /**
+     * Set expiration time of queries regarding this object
+     *
+     * @param timeout the elapsed time in milliseconds after which queries on
+     * this object will expire
+     */
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    /**
+     * Get the expiration time of queries regarding this object
+     *
+     * @return the elapsed time in milliseconds after which queries on this
+     * object will expire
+     */
+    public long getTimeout() {
+        return this.timeout;
     }
 
     /**
@@ -91,6 +129,8 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
     @Override
     public byte[] readProperty(AbstractEchonetObject whoasks, EchonetProperty property) {
         EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.Get, Collections.singletonList(property), null, null);
+        //set the query timeout
+        query.setTimeout(this.getTimeout());
 
         //return what we read from the first property in the answer
         EchonetAnswer answer = query.getNextAnswer();
@@ -159,6 +199,15 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         return writeProperty(this.getEchonetNode().getNodeProfileObject().getEchonetObject(), property, data);
     }
 
+    /**
+     * Update the list of properties that a remote object has. This will
+     * initiate reads to the read/write/announce property maps and generate the
+     * appropriate properties. Use this method before any calls to
+     * {@link AbstractEchonetObject#getPropertyList() getPropertyList} to ensure
+     * a valid list of properties.
+     *
+     * @return true if the update was successful, false otherwise
+     */
     public boolean updatePropertyList() {
         byte[] announcemap = this.readProperty((byte) 0x9D);
         byte[] writemap = this.readProperty((byte) 0x9E);

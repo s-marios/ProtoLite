@@ -14,20 +14,19 @@ import java.util.logging.Logger;
  */
 public class EchonetQuery extends ArrayList<EchonetAnswer> implements Query {
 
-    /**
-     *
-     */
-    public AbstractEchonetObject querysource = null;
-
+    private final AbstractEchonetObject querysource;
     private boolean processed = false;
     private long when = System.currentTimeMillis();
     private final EchoEventListener listener;
     private final ServiceCode code;
+    private long timeout;
 
-    EchonetQuery(ServiceCode code, AbstractEchonetObject parent, EchoEventListener listener) {
-        this.querysource = parent;
+    EchonetQuery(ServiceCode code, AbstractEchonetObject source, EchoEventListener listener) {
+        this.querysource = source;
         this.listener = listener;
         this.code = code;
+        //default timeout for unicasts
+        this.timeout = EchonetProtocol.AWAITRESPONSE;
     }
 
     /**
@@ -98,13 +97,22 @@ public class EchonetQuery extends ArrayList<EchonetAnswer> implements Query {
     /**
      * Gets the associated time out value for this query
      *
-     * @return the timeout value as a long
+     * @return the timeout value, in milliseconds
      */
     @Override
-    public long getTimoutInMillis() {
-        //TODO this is just plain wrong, should have different timeouts for
-        //unicasts and multicasts
-        return EchonetProtocol.AWAITRESPONSEMULTICAST;
+    public long getTimeout() {
+        return this.timeout;
+    }
+
+    /**
+     * Set the timeout for this query, in milliseconds. After timeout
+     * milliseconds have elapsed, this query will have expired.
+     *
+     * @param timeout the elapsed time after which the query will expire
+     */
+    @Override
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     /**
@@ -114,7 +122,7 @@ public class EchonetQuery extends ArrayList<EchonetAnswer> implements Query {
      */
     @Override
     public boolean hasExpired() {
-        return (System.currentTimeMillis() - this.when > getTimoutInMillis());
+        return (System.currentTimeMillis() - this.when > getTimeout());
     }
 
     /**
@@ -150,8 +158,8 @@ public class EchonetQuery extends ArrayList<EchonetAnswer> implements Query {
         try {
             while (this.isEmpty()) {
                 long elapsedtime = System.currentTimeMillis() - when;
-                if (elapsedtime < EchonetProtocol.AWAITRESPONSE) {
-                    this.wait(EchonetProtocol.AWAITRESPONSE - elapsedtime);
+                if (elapsedtime < this.getTimeout()) {
+                    this.wait(this.getTimeout() - elapsedtime);
                 } else {
                     return;// timeout occured
                 }
