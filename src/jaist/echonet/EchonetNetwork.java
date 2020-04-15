@@ -2,8 +2,15 @@ package jaist.echonet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -42,13 +49,32 @@ class EchonetNetwork {
         setup(address);
     }
 
+    private InetAddress getIPv4FromReasonableInterface() throws SocketException, UnknownHostException {
+        for (Enumeration<NetworkInterface> netifs = NetworkInterface.getNetworkInterfaces(); netifs.hasMoreElements();) {
+            NetworkInterface netif = netifs.nextElement();
+            //pick an interface that up, supports multicast, is not virtual, is not loopback, is not point to point
+            if (netif.isUp() && netif.supportsMulticast() && !netif.isVirtual() && !netif.isLoopback() && !netif.isPointToPoint()) {
+                for (InterfaceAddress ifAddr : netif.getInterfaceAddresses()) {
+                    InetAddress addr = ifAddr.getAddress();
+                    if (addr instanceof Inet4Address) {
+                        //gete the first IpV4 address
+                        return addr;
+                    }
+                }
+            }
+        }
+        //God have mercy..
+        return InetAddress.getLocalHost();
+    }
+
     private void setup(InetAddress address) {
         //setup socket
         boolean wasNull = address == null;
         try {
             this.local = address;
             if (this.local == null) {
-                this.local = InetAddress.getLocalHost();
+                this.local = getIPv4FromReasonableInterface();
+                Logging.getLogger().log(Level.INFO, "Defaulting to IP address: {0}", this.local);
             }
 
             if (local.getAddress().length == 4) {
@@ -59,7 +85,6 @@ class EchonetNetwork {
                 Logging.getLogger().log(Level.FINE, "Using IPv6");
             }
 
-            //TODO it is possible to bind to specific interface by using InetSocektAddress as an arg to multicast socket.
             dport = EchonetProtocol.ECHONETPORT;
             msocket = new MulticastSocket(EchonetProtocol.ECHONETPORT);
 
