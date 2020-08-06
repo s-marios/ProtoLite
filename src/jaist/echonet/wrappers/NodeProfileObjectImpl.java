@@ -33,8 +33,10 @@ public class NodeProfileObjectImpl extends NodeProfileObject {
      * @param echobj the local echonet object to be registered 
      */
     public void registerEchonetObject(LocalEchonetObject echobj) {
-        //skip the registering of any node profile node, there should be only one
+        //skip the registering of any node profile node
         if (isNode(echobj.getEOJ())) {
+            // BUGFIX: ..but do refresh all the lists
+            this.refreshLists();
             return;
         }
 
