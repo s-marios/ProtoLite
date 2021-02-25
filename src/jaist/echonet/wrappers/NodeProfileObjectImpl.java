@@ -14,23 +14,23 @@ import jaist.echonet.LocalEchonetObject;
 /**
  * Implementation of the logic of a NodeProfileObject object. Used internally by
  * {@link EchonetNode}
- * 
+ *
  * @author Sioutis Marios
  */
 public class NodeProfileObjectImpl extends NodeProfileObject {
 
     private Map<EOJ, LocalEchonetObject> objects = new ConcurrentHashMap();
     private Map<EOJ, List<LocalEchonetObject>> objectclasses = new ConcurrentHashMap();
-    /** 
-     * A convinience list that only contains the node, initialized at startup for
-     * ease of use
+    /**
+     * A convinience list that only contains the node, initialized at startup
+     * for ease of use
      */
     private List<LocalEchonetObject> thenode;
 
     /**
      * Registeres a local echonet object with this node
-     * 
-     * @param echobj the local echonet object to be registered 
+     *
+     * @param echobj the local echonet object to be registered
      */
     public void registerEchonetObject(LocalEchonetObject echobj) {
         //skip the registering of any node profile node
@@ -53,7 +53,7 @@ public class NodeProfileObjectImpl extends NodeProfileObject {
     }
 
     public void unregisterEchonetObject(LocalEchonetObject echobj) {
-        if (isNode(echobj.getEOJ())){
+        if (isNode(echobj.getEOJ())) {
             return;
         }
         EOJ reoj = echobj.getEOJ();
@@ -101,22 +101,22 @@ public class NodeProfileObjectImpl extends NodeProfileObject {
             instancelist[i++] = object_eoj.getClassCode();
             instancelist[i++] = object_eoj.getInstanceCode();
         }
-        writeProperty((byte) 211, new byte[]{0x00, 0x00, (byte) (objects.size())});
-        writeProperty((byte) 212, new byte[]{0x00, (byte) objectclasses.size()});
+        writeProperty((byte) 0xD3, new byte[]{0x00, 0x00, (byte) (objects.size())});
+        writeProperty((byte) 0xD4, new byte[]{0x00, (byte) objectclasses.size()});
         //TODO this will break with more than 84 instances. fix .. sometime
         //these seem tobe the same. one of them just notifies...
-        writeProperty((byte) 213, instancelist);
-        writeProperty((byte) 214, instancelist);
+        writeProperty((byte) 0xD5, instancelist);
+        writeProperty((byte) 0xD6, instancelist);
         //refresh object class list
         ByteBuffer bb = ByteBuffer.allocate(2 * objectclasses.size() + 1);
         bb.put((byte) objectclasses.size());
-        
+
         for (EOJ ceoj : objectclasses.keySet()) {
             bb.putShort(ceoj.shortValueForClass());
             //bb.put(ceoj.getClassGroupCode());
             //bb.put(ceoj.getClassCode());
         }
-        this.getLocalEchonetObject().adminWriteProperty((byte) 215, bb.array());
+        this.getLocalEchonetObject().adminWriteProperty((byte) 0xD7, bb.array());
     }
 
     private boolean isNode(EOJ eoj) {
