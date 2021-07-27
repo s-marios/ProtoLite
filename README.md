@@ -1,10 +1,8 @@
 # ProtoLite
-One of the first ECHONET Lite imlementations, now finally free
+One of the first ECHONET Lite implementations, now finally free
 
 ### Getting Started
-This project comes bundled as a NetBeans project. Use NetBeans to open
-the project folder and the use "Clean and Build" to compile and
-produce a redistributable jar archive.
+Build the library using maven: `mvn package` or open in your favourite java IDE.
 
 ### Network Scanner
 The basic ECHONET Lite network scanner application can be invoked by
