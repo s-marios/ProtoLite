@@ -1,4 +1,4 @@
-package jaist.echonet.gui;
+package jaist.echonet.gui.aircon;
 
 /**
  *

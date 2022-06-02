@@ -23,7 +23,7 @@ import jaist.echonet.LocalEchonetObject;
 import jaist.echonet.PropertyMemento;
 import jaist.echonet.RemoteEchonetObject;
 import jaist.echonet.config.VirtualAirconditionInfo;
-import jaist.echonet.gui.SupportsAppend;
+import jaist.echonet.gui.aircon.SupportsAppend;
 import jaist.echonet.wrappers.Aircondition;
 import jaist.echonet.wrappers.LocalWriter;
 import jaist.echonet.util.Utils;

@@ -1,5 +1,6 @@
-package jaist.echonet.gui;
+package jaist.echonet.gui.aircon;
 
+import jaist.echonet.gui.aircon.SupportsAppend;
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
