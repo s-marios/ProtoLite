@@ -10,7 +10,6 @@ import jaist.echonet.EchonetCharacterProperty;
 import jaist.echonet.EchonetNode;
 import jaist.echonet.EchonetProperty;
 import jaist.echonet.LocalEchonetObject;
-import jaist.echonet.gui.NetworkScanner;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class TemperatureSensorApp {
                 address = InetAddress.getByName(args[0]);
             }
         } catch (UnknownHostException ex) {
-            Logger.getLogger(NetworkScanner.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TemperatureSensorApp.class.getName()).log(Level.SEVERE, null, ex);
         }
         new TemperatureSensorApp(address);
     }

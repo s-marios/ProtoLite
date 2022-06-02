@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package jaist.echonet.samples;
 
 import jaist.echonet.EchoEventListener;
@@ -10,11 +5,9 @@ import jaist.echonet.EchonetAnswer;
 import jaist.echonet.EchonetNode;
 import jaist.echonet.EchonetProperty;
 import jaist.echonet.RemoteEchonetObject;
-import jaist.echonet.gui.NetworkScanner;
 import jaist.echonet.util.Utils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +24,7 @@ public class NotificationSample implements EchoEventListener {
                 address = InetAddress.getByName(args[0]);
             }
         } catch (UnknownHostException ex) {
-            Logger.getLogger(NetworkScanner.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NotificationSample.class.getName()).log(Level.SEVERE, null, ex);
         }
         new NotificationSample(address);
     }

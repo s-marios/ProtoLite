@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package jaist.echonet.samples;
 
 import jaist.echonet.EchonetNode;
-import jaist.echonet.gui.NetworkScanner;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -34,10 +28,10 @@ public class BareTemplate {
                 address = InetAddress.getByName(args[0]);
             }
         } catch (UnknownHostException ex) {
-            Logger.getLogger(NetworkScanner.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BareTemplate.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        BareTemplate baseTemplate = new BareTemplate(address);
+        BareTemplate base = new BareTemplate(address);
     }
 
     public BareTemplate(InetAddress address) {

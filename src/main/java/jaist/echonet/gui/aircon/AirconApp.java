@@ -83,7 +83,7 @@ public class AirconApp implements SupportsAppend{
             if(args.length > 0)
                 address = InetAddress.getByName(args[0]);
         } catch (UnknownHostException ex) {
-            Logger.getLogger(NetworkScanner.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AirconApp.class.getName()).log(Level.SEVERE, null, ex);
         }
         AirconApp airconApp = new AirconApp(address);
     }

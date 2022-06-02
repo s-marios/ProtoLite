@@ -1,4 +1,4 @@
-package jaist.echonet.gui;
+package jaist.echonet.gui.ns;
 
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -60,14 +60,14 @@ import java.util.logging.ConsoleHandler;
 public class NetworkScanner implements EchoEventListener, TreeSelectionListener {
 
     public EchonetNode echonode;
-    private MyTreeModel mymodel = new MyTreeModel();
+    private final MyTreeModel mymodel = new MyTreeModel();
     private JTree jtree;
     private JScrollPane scrollpaneleft, scrollpaneright;
-    private JFrame frame = new JFrame("test app");
-    private LocalEchonetObject controler;
+    private final JFrame frame = new JFrame("Network Scanner");
+    private final LocalEchonetObject controler;
     private JSplitPane splitpane;
     private JPanel cards;
-    private ObjectToSomething cardholder = new ObjectToSomething(this);
+    private final ObjectToSomething cardholder = new ObjectToSomething();
     //listeners
     private MouseAdapter mousetablelistener;
     private MouseListener mousetreelistener;
@@ -77,9 +77,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
     private AbstractEchonetObject currentobject;
     private final Object currentlock = new Object();
     private int currentopcode = 0;
-    private final int SCANINIT = 1;
-    private final int SCANLISTEN = 2;
-    private int status = SCANINIT;
 
     public void setCurrentOpcode(int opcode) {
         synchronized (currentlock) {
@@ -102,8 +99,8 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
     }
 
     /**
-     * The main method for the network scanner program. 
-     * 
+     * The main method for the network scanner program.
+     *
      * @param args a single argument (if supplied) must be an IPv4 or IPv6
      * address that will be used (as a hint) during the initialization of the
      * network.
@@ -114,8 +111,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
         ConsoleHandler console = new ConsoleHandler();
         console.setLevel(Level.FINEST);
         Logging.getLogger().addHandler(console);
-        
-        
+
         InetAddress address = null;
         try {
             if (args.length > 0) {
@@ -125,58 +121,36 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             Logging.getLogger().log(Level.SEVERE, null, ex);
         }
 
-
         NetworkScanner app = new NetworkScanner(address);
         EchonetNode node = app.echonode;
 
         node.registerForNotifications(null, null, null, null, null, app);
-        //Thread t = node.start();
 
+        LocalEchonetObject obj;
 
-        LocalEchonetObject aircon = new LocalEchonetObject(new AirconditionFullInfo());
-        Aircondition aircon2 = Aircondition.createLocalInstance(aircon);
+        for (int i = 0; i < 2; i++) {
+            obj = new LocalEchonetObject(new TemperatureSensorInfo());
+            node.registerEchonetObject(obj);
+            LiveTemperatureSensor tt = LiveTemperatureSensor.createLocalInstance(obj);
+            tt.start();
+        }
 
+        for (int i = 0; i < 3; i++) {
+            obj = new LocalEchonetObject(new EmergencyButtonInfo());
+            node.registerEchonetObject(obj);
+
+            obj = new LocalEchonetObject(new AirconditionFullInfo());
+            node.registerEchonetObject(obj);
+        }
         
-        LocalEchonetObject tsensor = new LocalEchonetObject(new TemperatureSensorInfo());
-        node.registerEchonetObject(tsensor);
-        LiveTemperatureSensor tt = LiveTemperatureSensor.createLocalInstance(tsensor);
-        tt.start();
+        node.start();
 
-        tsensor = new LocalEchonetObject(new TemperatureSensorInfo());
-        node.registerEchonetObject(tsensor);
-        tt = LiveTemperatureSensor.createLocalInstance(tsensor);
-        
-        tt.start();
-        
-        
-        LocalEchonetObject ebutton = new LocalEchonetObject(new EmergencyButtonInfo());
-        node.registerEchonetObject(ebutton);
-
-        ebutton = new LocalEchonetObject(new EmergencyButtonInfo());
-        node.registerEchonetObject(ebutton);
-
-        Thread t = node.start();
-        
         app.startScan();
     }
 
     public NetworkScanner(InetAddress address) {
         echonode = new EchonetNode(address);
-
-        EmergencyButton ebutton = AbstractObjectWrapper.createAndRegisterLocalInstance(
-                EmergencyButton.class, new EmergencyButtonInfo(), echonode);
-
-        LocalEchonetObject local;
-
-        local = new LocalEchonetObject(new AirconditionFullInfo());
-        echonode.registerEchonetObject(local);
-
-        local = new LocalEchonetObject(new AirconditionFullInfo());
-        echonode.registerEchonetObject(local);
-
-        local = new LocalEchonetObject(new AirconditionFullInfo());
-        echonode.registerEchonetObject(local);
-
+        
         controler = new LocalEchonetObject(new DeviceInfo() {
 
             @Override
@@ -217,21 +191,17 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
         jtree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         jtree.addTreeSelectionListener(this);
         jtree.addMouseListener(ma);
-        //jtree.addMouseListener(getTreeMouseListener());
 
         //setup the card layout panel
         cards = new JPanel(new CardLayout());
 
         scrollpaneleft = new JScrollPane(jtree);
         scrollpaneright = new JScrollPane(cards);
-        cards.add(new JLabel("test"), "test");
-        //scrollpaneright.setLayout(new CardLayout());
 
         Dimension minimumsize1 = new Dimension(200, 200);
         Dimension minimumsize2 = new Dimension(400, 200);
         scrollpaneleft.setMinimumSize(minimumsize1);
         scrollpaneright.setMinimumSize(minimumsize2);
-
 
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollpaneleft, scrollpaneright);
         splitpane.setDividerLocation(200);
@@ -245,8 +215,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
 
     protected void startScan() {
         scanNode(echonode.getGroupIP());
-        //set init scan is over.
-        this.status = SCANLISTEN;
     }
 
     protected void scanNode(InetAddress nodeaddress) {
@@ -260,7 +228,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             //and scan it
             mymodel.addEchonetObject(nextAnswer.getResponder());
             defferedScanObject(nextAnswer.getResponder());
-
 
             for (EchonetProperty property : nextAnswer.getProperties()) {
                 //now try to get its instance list
@@ -298,8 +265,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
     }
 
     protected void scanObject(RemoteEchonetObject robject) {
-        //synchronized(robject) { //god forgive me...
-        //NodeProfileObject profile = this.echonode.getNodeProfileObject();
         ConcreteObjectWrapper wrappedobject = ConcreteObjectWrapper.createRemoteInstance(robject, controler);
         //obtain a table model
         DevicePropertiesTableModel tablemodel = cardholder.getDataModel(robject);
@@ -313,7 +278,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
         scanProperties(wrappedobject, tablemodel, AccessRule.WRITEABLE);
         scanProperties(wrappedobject, tablemodel, AccessRule.READABLE);
         scanProperties(wrappedobject, tablemodel, AccessRule.NOTIFIES);
-        //}
     }
 
     protected MouseListener getTableMouseListener() {
@@ -338,7 +302,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
                                 //set the current opcode
                                 DevicePropertiesTableModel datamodel = cardholder.getDataModel(currentobject);
                                 setCurrentOpcode(datamodel.getOpcode(row));
-
 
                                 //popup stuff
                                 JPopupMenu popup = new JPopupMenu();
@@ -397,7 +360,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             }
             tablemodel.addTableProperties(proplist);
 
-            if(rule == AccessRule.NOTIFIES){
+            if (rule == AccessRule.NOTIFIES) {
                 this.echonode.makeQuery(controler, wrappedobject.getEchonetObject(), ServiceCode.INF_REQ, EchonetDummyProperty.getDummies(properties), null, this);
             }
 
@@ -423,7 +386,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             //1. bring up the proper table model.
             DevicePropertiesTableModel dataModel = this.cardholder.getDataModel(robject);
             dataModel.addTableProperties(Collections.singletonList(
-                    new TableProperty(property.getPropertyCode(), 4, property.read())));
+                    new TableProperty(property.getPropertyCode(), TableProperty.NOTIFIES, property.read())));
         }
         return true;
     }
@@ -436,18 +399,16 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
     public void valueChanged(TreeSelectionEvent tse) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tse.getPath().getLastPathComponent();
         Logging.getLogger().log(Level.FINE, node.getUserObject().toString());
-        if (node.isLeaf() && node.getUserObject() instanceof ToStringObjectWrapper) {
-            ToStringObjectWrapper wrapped = (ToStringObjectWrapper) node.getUserObject();
+        if (node.isLeaf() && node.getUserObject() instanceof WrappedObject) {
+            WrappedObject wrapped = (WrappedObject) node.getUserObject();
             //set the current echonet object
             setCurrentObject(wrapped.getObject());
 
             JPanel currentcard = cardholder.getPanelComponent(wrapped.getObject());
             CardLayout cl = (CardLayout) cards.getLayout();
-            //System.out.println("show key: " + wrapped.getObject().toString());
 
             cards.add(currentcard, wrapped.getObject().toString());
             cl.show(cards, wrapped.getObject().toString());
-            //cards.invalidate();
         }
     }
 
@@ -461,10 +422,10 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
             byte[] data = wrapped.readProperty((byte) currentopcode);
             if (data != null && data.length > 0) {
                 DevicePropertiesTableModel dataModel = cardholder.getDataModel(currentobject);
-                dataModel.addTableProperties(Collections.singletonList(new TableProperty(currentopcode, 1, data)));
+                dataModel.addTableProperties(Collections.singletonList(new TableProperty(currentopcode, TableProperty.READABLE, data)));
                 Logging.getLogger().log(Level.INFO, "Refresh data: {0}", Utils.toHexString(data));
             } else {
-                Logging.getLogger().log(Level.WARNING,"The query died");
+                Logging.getLogger().log(Level.WARNING, "The query died");
             }
         }
     }
@@ -480,7 +441,7 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
                 return true;
             } else {
                 DevicePropertiesTableModel dataModel = cardholder.getDataModel(currentobject);
-                dataModel.addTableProperties(Collections.singletonList(new TableProperty(currentopcode, 2, data)));
+                dataModel.addTableProperties(Collections.singletonList(new TableProperty(currentopcode, TableProperty.WRITEABLE, data)));
                 return false;
             }
         }
@@ -499,8 +460,8 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
 
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                     Logging.getLogger().log(Level.FINEST, node.getUserObject().toString());
-                    if (node.isLeaf() && node.getUserObject() instanceof ToStringObjectWrapper) {
-                        final ToStringObjectWrapper wrapped = (ToStringObjectWrapper) node.getUserObject();
+                    if (node.isLeaf() && node.getUserObject() instanceof WrappedObject) {
+                        final WrappedObject wrapped = (WrappedObject) node.getUserObject();
 
                         AbstractEchonetObject obj = wrapped.getObject();
                         final RemoteEchonetObject robject = echonode.getRemoteObject(obj.getQueryIp(), obj.getEOJ());
@@ -517,7 +478,6 @@ public class NetworkScanner implements EchoEventListener, TreeSelectionListener 
                                 //JPanel currentcard = cardholder.getPanelComponent(wrapped.getObject());
                                 CardLayout cl = (CardLayout) cards.getLayout();
                                 cl.show(cards, wrapped.getObject().toString());
-
 
                             }
                         });
