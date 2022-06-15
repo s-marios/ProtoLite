@@ -171,6 +171,7 @@ public class RemoteEchonetObject extends AbstractEchonetObject {
         }
 
         EchonetQuery query = getEchonetNode().makeQuery(whoasks, this, ServiceCode.SetC, Collections.singletonList(copyfrom), null, null);
+        query.setTimeout(this.getTimeout());
         EchonetAnswer answer = query.getNextAnswer();
 
         if (answer == null) {
